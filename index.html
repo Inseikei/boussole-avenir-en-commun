@@ -279,7 +279,7 @@ textarea{min-height:72px;resize:vertical}
       <span><span class="rond-vide" aria-hidden="true" style="width:10px;height:10px;border-width:1.5px;color:var(--texte-doux)"></span><b id="r-neutre">0</b> neutre</span>
       <span><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" style="width:14px;height:14px;color:var(--orange-texte)"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg><b id="r-contre">0</b> contre</span>
     </div>
-    <label class="interrupteur"><input type="checkbox" id="r-weight"> Pondérer par l'impact de chaque mesure</label>
+    <label class="interrupteur" id="r-weight-wrap"><input type="checkbox" id="r-weight"> Pondérer par l'impact de chaque mesure</label>
   </div>
   <p class="note-bas">Par thème, le score va de −100 (tout contre) à +100 (tout pour). Touchez un thème pour en voir les mesures.</p>
   <div class="vue" id="r-chapters"></div>
@@ -519,7 +519,8 @@ function wireExplorer(){
 
 /* ---------- Bilan ---------- */
 function renderBilan(){
-  const w=$("#r-weight").checked;
+  $("#r-weight-wrap").hidden=mode==="courte";
+  const w=mode!=="courte"&&$("#r-weight").checked;
   const tot={p:0,c:0,n:0,wp:0,wc:0,wn:0},themes=[],tmap={};
   M.forEach(m=>{
     const k=m.ch+"|"+m.theme;
@@ -536,7 +537,7 @@ function renderBilan(){
     $("#r-score").textContent="–";$("#r-score-mot").textContent="";$("#r-barre").innerHTML="";
   }else{
     const pct=Math.round(P/den*100);
-    $("#r-lead").innerHTML=`<b>${nf(voted)}</b> ${pl(voted,"mesure triée","mesures triées")} sur ${nf(M.length)} · <b>${Math.round(voted/M.length*100)} %</b> du programme`;
+    $("#r-lead").innerHTML=`<b>${nf(voted)}</b> ${pl(voted,"mesure triée","mesures triées")} sur ${nf(M.length)} · <b>${Math.round(voted/M.length*100)} %</b> ${mode==="courte"?"de la version courte":"du programme"}`;
     $("#r-score").textContent=pct+" %";
     $("#r-score-mot").textContent=`de vos choix sont « pour »${w?", pondérés par l'impact":""}`;
     $("#r-barre").innerHTML=`<span style="width:${P/den*100}%;background:var(--barre-valide)"></span><span style="width:${N/den*100}%;background:var(--texte-leger)"></span><span style="width:${C/den*100}%;background:var(--orange)"></span>`;
