@@ -189,6 +189,27 @@ textarea{min-height:72px;resize:vertical}
 .version{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-bottom:16px}
 .version-mot{font-size:13px;font-weight:700}
 .version .segments button{font-size:14px;min-height:32px;padding:4px 12px}
+.graphe{padding:16px 20px;display:flex;flex-direction:column;gap:12px;position:relative}
+.graphe-tete{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 12px}
+.graphe h2{margin:0;font-size:17px;line-height:1.25}
+.g-grille{display:grid;grid-template-columns:minmax(0,190px) minmax(0,1fr);column-gap:12px;row-gap:2px;align-items:center}
+.g-nom{font-size:14px;line-height:1.3;min-width:0}
+.g-nom small{display:block;font-size:12px;color:var(--texte-doux);font-variant-numeric:tabular-nums}
+.g-piste{position:relative;height:36px;cursor:default;border-radius:var(--coin)}
+.g-piste:hover,.g-piste:focus-visible{background:var(--principale-pale)}
+.g-piste .g0{position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--contour)}
+.g-piste .g50{position:absolute;top:0;bottom:0;width:1px;background:var(--bord-doux)}
+.g-barre{position:absolute;top:11px;height:14px}
+.g-barre.p{left:50%;background:var(--barre-valide);border-radius:0 4px 4px 0}
+.g-barre.c{right:50%;background:var(--orange);border-radius:4px 0 0 4px}
+.g-val{position:absolute;top:9px;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--texte);white-space:nowrap}
+.g-val.vide{font-weight:400;color:var(--texte-doux)}
+.g-axe{position:relative;height:18px;font-size:12px;color:var(--texte-doux);font-variant-numeric:tabular-nums}
+.g-axe span{position:absolute;transform:translateX(-50%)}
+.g-axe span:first-child{transform:none}.g-axe span:last-child{transform:translateX(-100%)}
+.infobulle{position:absolute;z-index:5;background:var(--surface);border:1px solid var(--bord);box-shadow:var(--ombre-flottante);border-radius:var(--coin-carte);padding:8px 10px;font-size:13px;line-height:1.35;max-width:240px;pointer-events:none}
+.infobulle b{display:block;font-size:14px}
+@media (max-width:599px){.g-grille{grid-template-columns:minmax(0,1fr)}.g-nom{margin-top:6px}.g-piste{height:30px}.g-barre{top:8px}.g-val{top:6px}}
 .note-bas{font-size:13px;color:var(--texte-doux);margin:0;max-width:68ch}
 
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--surface);color:var(--texte);border:1px solid var(--bord);box-shadow:var(--ombre-flottante);padding:8px 14px;border-radius:var(--coin-carte);font-size:14px;font-weight:600;opacity:0;transition:opacity .15s;pointer-events:none;z-index:20}
@@ -281,6 +302,12 @@ textarea{min-height:72px;resize:vertical}
     </div>
     <label class="interrupteur" id="r-weight-wrap"><input type="checkbox" id="r-weight"> Pondérer par l'impact de chaque mesure</label>
   </div>
+  <section class="carte graphe" aria-labelledby="g-titre">
+    <div class="graphe-tete"><h2 id="g-titre">Score par chapitre</h2><span class="mini" id="g-note">De −100 (tout contre) à +100 (tout pour)</span></div>
+    <div id="g-corps" role="img" aria-describedby="g-resume"></div>
+    <p class="mini" id="g-resume"></p>
+    <div class="infobulle" id="g-bulle" role="tooltip" hidden></div>
+  </section>
   <p class="note-bas">Par thème, le score va de −100 (tout contre) à +100 (tout pour). Touchez un thème pour en voir les mesures.</p>
   <div class="vue" id="r-chapters"></div>
   <p class="note-bas">Chaque mesure est reformulée en une ligne à partir de lavenirencommun.org (site non officiel, 795 mesures de la version synthétique) ; le lien « Texte original » renvoie au texte exact. L'impact (1 à 3) estime l'ampleur d'une mesure, c'est-à-dire la population touchée et son poids budgétaire ou institutionnel, pas sa pertinence. <span id="sync"></span></p>
@@ -558,6 +585,49 @@ function renderBilan(){
     html+=`</div>`;
   }
   $("#r-chapters").innerHTML=html;
+  renderGraphe(themes,w);
+}
+function renderGraphe(themes,w){
+  const rows=[];
+  for(let ch=1;ch<=8;ch++){
+    const ts=themes.filter(t=>t.ch===ch);if(!ts.length)continue;
+    const a={ch,p:0,c:0,n:0,wp:0,wc:0,wn:0,total:0};
+    ts.forEach(t=>{for(const k of["p","c","n","wp","wc","wn","total"])a[k]+=t[k]});
+    const P=w?a.wp:a.p,C=w?a.wc:a.c,N=w?a.wn:a.n,d=P+C+N;
+    a.score=d?Math.round((P-C)/d*100):null;a.tri=a.p+a.c+a.n;rows.push(a);
+  }
+  const fmt=v=>v===null?"–":(v>0?"+":v<0?"−":"")+Math.abs(v);
+  let h='<div class="g-grille">';
+  rows.forEach(r=>{
+    const s=r.score,half=s===null?0:Math.abs(s)/2;
+    let bar="",val;
+    if(s===null)val=`<span class="g-val vide" style="left:calc(50% + 8px)">Pas encore trié</span>`;
+    else if(s>=0){bar=s?`<span class="g-barre p" style="width:${half}%"></span>`:"";val=`<span class="g-val" style="left:calc(${50+half}% + 6px)">${fmt(s)}</span>`}
+    else{bar=`<span class="g-barre c" style="width:${half}%"></span>`;val=`<span class="g-val" style="right:calc(${50+half}% + 6px)">${fmt(s)}</span>`}
+    if(s!==null&&Math.abs(s)>80)val=s>0?`<span class="g-val" style="right:calc(50% + 6px)">${fmt(s)}</span>`:`<span class="g-val" style="left:calc(50% + 6px)">${fmt(s)}</span>`;
+    h+=`<div class="g-nom">${r.ch}. ${esc(CHAPTERS[r.ch-1])}<small>${r.tri}/${r.total} triées</small></div>
+      <div class="g-piste" tabindex="0" data-ch="${r.ch}" aria-label="Chapitre ${r.ch}, score ${s===null?"non calculé":fmt(s)}, ${r.p} pour, ${r.n} neutre, ${r.c} contre">
+        <span class="g50" style="left:25%"></span><span class="g50" style="left:75%"></span><span class="g0"></span>${bar}${val}</div>`;
+  });
+  h+='<div></div><div class="g-axe" aria-hidden="true"><span style="left:0">−100</span><span style="left:25%">−50</span><span style="left:50%">0</span><span style="left:75%">+50</span><span style="left:100%">+100</span></div></div>';
+  const corps=$("#g-corps");corps.innerHTML=h;
+  $("#g-note").textContent="De −100 (tout contre) à +100 (tout pour)"+(w?", pondéré par l'impact":"");
+  const scored=rows.filter(r=>r.score!==null);
+  if(!scored.length){$("#g-resume").textContent="Les scores apparaîtront dès vos premiers choix.";}
+  else{const hi=scored.reduce((a,b)=>b.score>a.score?b:a),lo=scored.reduce((a,b)=>b.score<a.score?b:a);
+    $("#g-resume").textContent=scored.length>1?`Plus proche : ${CHAPTERS[hi.ch-1]} (${fmt(hi.score)}). Plus éloigné : ${CHAPTERS[lo.ch-1]} (${fmt(lo.score)}).`:`Seul chapitre trié : ${CHAPTERS[hi.ch-1]} (${fmt(hi.score)}).`}
+  const bulle=$("#g-bulle"),box=corps.closest(".graphe");
+  const show=el=>{const r=rows.find(x=>x.ch==el.dataset.ch);if(!r)return;
+    bulle.innerHTML=`<b>${r.ch}. ${esc(CHAPTERS[r.ch-1])}</b>Score ${fmt(r.score)}${w?" (pondéré)":""}<br>${r.p} pour · ${r.n} neutre · ${r.c} contre<br>${r.tri} sur ${r.total} mesures triées`;
+    bulle.hidden=false;const b=box.getBoundingClientRect(),e=el.getBoundingClientRect();
+    let left=e.left-b.left+e.width/2-120;left=Math.max(8,Math.min(left,b.width-248));
+    bulle.style.left=left+"px";bulle.style.top=(e.top-b.top-bulle.offsetHeight-6)+"px"};
+  const hide=()=>{bulle.hidden=true};
+  corps.querySelectorAll(".g-piste").forEach(el=>{
+    el.addEventListener("pointerenter",()=>show(el));el.addEventListener("pointerleave",hide);
+    el.addEventListener("focus",()=>show(el));el.addEventListener("blur",hide);
+    el.addEventListener("click",()=>{E.ch=el.dataset.ch;E.q="";E.status="all";E.sort="prog";E.limit=200;$("#e-ch").value=E.ch;$("#e-q").value="";$("#e-status").value="all";$("#e-sort").value="prog";hide();location.hash="explorer"});
+  });
 }
 function wireBilan(){
   $("#r-weight").addEventListener("change",renderBilan);
