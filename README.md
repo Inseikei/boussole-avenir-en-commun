@@ -5,6 +5,7 @@ Mini app pour parcourir les 795 mesures de la version synthétique de *L'Avenir 
 **➡️ Ouvrir l'app : https://inseikei.github.io/boussole-avenir-en-commun/**
 
 ## Fonctionnalités
+- **Deux versions** : complète (795 mesures) ou courte (69 mesures à impact 3, les plus structurantes). Lien direct vers la version courte : https://inseikei.github.io/boussole-avenir-en-commun/?version=courte
 - **Trier** : swipe pour / contre / neutre, filtres par chapitre et profil (salarié, retraité, jeune, locataire, parent, indépendant), tri par impact potentiel.
 - **Explorer** : recherche, filtres, favoris et notes personnelles.
 - **Bilan** : alignement global et score par thème (option pondérée par l'impact).

@@ -186,6 +186,9 @@ textarea{min-height:72px;resize:vertical}
 .ecart .c{right:50%;background:var(--orange)}
 .score{font-size:14px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
 .score.pos{color:var(--vert-texte)} .score.neg{color:var(--orange-texte)} .score.nul{color:var(--texte-doux);font-weight:400}
+.version{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-bottom:16px}
+.version-mot{font-size:13px;font-weight:700}
+.version .segments button{font-size:14px;min-height:32px;padding:4px 12px}
 .note-bas{font-size:13px;color:var(--texte-doux);margin:0;max-width:68ch}
 
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--surface);color:var(--texte);border:1px solid var(--bord);box-shadow:var(--ombre-flottante);padding:8px 14px;border-radius:var(--coin-carte);font-size:14px;font-weight:600;opacity:0;transition:opacity .15s;pointer-events:none;z-index:20}
@@ -198,7 +201,7 @@ textarea{min-height:72px;resize:vertical}
 
 <a class="skip" href="#contenu">Aller au contenu</a>
 <header class="bandeau"><div class="wrap">
-  <div class="marque"><b>Boussole</b><span>L'Avenir en commun · 795 mesures</span></div>
+  <div class="marque"><b>Boussole</b><span id="marque-sous">L'Avenir en commun · 795 mesures</span></div>
   <nav class="onglets" aria-label="Sections">
     <a href="#trier" data-vue="trier"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Trier</a>
     <a href="#explorer" data-vue="explorer"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>Explorer</a>
@@ -207,6 +210,14 @@ textarea{min-height:72px;resize:vertical}
 </div></header>
 
 <main id="main"><div class="wrap" id="contenu" tabindex="-1">
+<div class="version">
+  <span class="version-mot" id="version-label">Version</span>
+  <span class="segments" role="group" aria-labelledby="version-label">
+    <button data-mode="complete" aria-pressed="true">Complète · <span class="num">795</span></button>
+    <button data-mode="courte" aria-pressed="false">Courte · <span class="num" id="n-courte">69</span></button>
+  </span>
+  <span class="mini" id="version-aide">Toutes les mesures du programme.</span>
+</div>
 
 <section class="vue" id="v-trier" aria-labelledby="h-trier">
   <h1 id="h-trier">Trier les mesures</h1>
@@ -295,7 +306,9 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 const nf=n=>n.toLocaleString("fr-FR");
 const pl=(n,s,p)=>n>1?p:s;
 
-let M=[],byId={};
+let ALL=[],M=[],byId={};
+const MODE_KEY="boussole-aec-mode";
+let mode="complete";
 let S={votes:{},fav:{},notes:{}};
 let history=[];
 const LS="boussole-aec-v1";
@@ -349,7 +362,7 @@ function profileFilters(box,state,onChange){
   box.innerHTML=`<button class="filtre" data-p="" aria-pressed="true">Tous les profils</button>`+Object.entries(PROFILES).map(([k,v])=>`<button class="filtre" data-p="${k}" aria-pressed="false">${v}</button>`).join("");
   box.addEventListener("click",e=>{const b=e.target.closest(".filtre");if(!b)return;state.p=b.dataset.p;box.querySelectorAll(".filtre").forEach(c=>c.setAttribute("aria-pressed",String(c===b)));onChange()});
 }
-function counts(){let p=0,c=0,n=0;for(const k in S.votes){const v=S.votes[k];if(v===1)p++;else if(v===-1)c++;else n++}return{p,c,n,t:p+c+n}}
+function counts(){let p=0,c=0,n=0;for(const m of M){const v=S.votes[m.id];if(v===undefined)continue;if(v===1)p++;else if(v===-1)c++;else n++}return{p,c,n,t:p+c+n}}
 function setVote(id,v){if(v===null)delete S.votes[id];else S.votes[id]=v;persist()}
 
 /* ---------- Trier ---------- */
@@ -566,6 +579,15 @@ function route(){
   if(v==="bilan")renderBilan();
   $("#main").scrollTop=0;
 }
+function applyMode(m,save){
+  mode=m==="courte"?"courte":"complete";
+  M=mode==="courte"?ALL.filter(x=>x.i===3):ALL;
+  if(save){try{localStorage.setItem(MODE_KEY,mode)}catch(e){}}
+  document.querySelectorAll(".version [data-mode]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.mode===mode)));
+  $("#version-aide").textContent=mode==="courte"?"Seulement les mesures à impact 3 : les plus structurantes.":"Toutes les mesures du programme.";
+  $("#marque-sous").textContent=`L'Avenir en commun · ${nf(M.length)} mesures`;
+  history=[];
+}
 function renderAll(){buildQueue();route()}
 function wireTrier(){
   fillChapterSelect($("#s-ch"));
@@ -589,7 +611,13 @@ async function boot(){
   window.addEventListener("hashchange",route);
   try{const r=await fetch("mesures.json");M=await r.json()}
   catch(e){$("#t-lead").textContent="Les mesures n'ont pas pu être chargées. Rechargez la page.";return}
-  M.forEach((m,k)=>{m.ord=k;m.id=`c${m.ch}-${m.slug}-${m.n}`;m._n=norm(m.t+" "+m.theme);byId[m.id]=m});
+  ALL=M;
+  ALL.forEach((m,k)=>{m.ord=k;m.id=`c${m.ch}-${m.slug}-${m.n}`;m._n=norm(m.t+" "+m.theme);byId[m.id]=m});
+  $("#n-courte").textContent=nf(ALL.filter(x=>x.i===3).length);
+  let start="complete";
+  try{const q=new URLSearchParams(location.search).get("version");if(q==="courte"||q==="complete")start=q;else start=localStorage.getItem(MODE_KEY)||"complete"}catch(e){}
+  applyMode(start,false);
+  $(".version").addEventListener("click",e=>{const b=e.target.closest("[data-mode]");if(!b||b.dataset.mode===mode)return;applyMode(b.dataset.mode,true);E.limit=120;renderAll();toast(mode==="courte"?"Version courte : "+nf(M.length)+" mesures":"Version complète : "+nf(M.length)+" mesures")});
   renderAll();initDb();
 }
 boot();
