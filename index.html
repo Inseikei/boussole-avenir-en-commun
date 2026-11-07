@@ -33,13 +33,19 @@
 html,body{height:100%}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;display:flex;flex-direction:column;overflow:hidden}
 button{font:inherit;color:inherit;cursor:pointer}
+::selection{background:var(--accent-soft);color:var(--ink)}
+html{accent-color:var(--accent);caret-color:var(--accent);scrollbar-color:var(--line) transparent}
+a{text-underline-offset:3px}
+.link:hover{text-decoration:underline}
 button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 a{color:var(--accent)}
 .wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));max-width:760px;margin:0 auto;width:100%;box-sizing:border-box}
 
 header.top{flex:none;border-bottom:1px solid var(--line);background:var(--surface)}
 header.top .wrap{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding-block:12px 10px}
-h1{font-family:var(--f-display);font-weight:800;font-size:1.25rem;letter-spacing:-.01em;margin:0}
+h1{font-family:var(--f-display);font-weight:800;font-size:1.25rem;letter-spacing:-.01em;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+h1 span{font-weight:500;color:var(--muted)}
+@media (max-width:380px){h1 span{display:none}}
 .progress{font-family:var(--f-mono);font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
 
 main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
@@ -57,7 +63,9 @@ nav.tabs a[aria-current="page"]{color:var(--accent)}
 select,input[type=search]{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font:inherit;font-size:.88rem;color:var(--ink);min-width:0}
 input[type=search]{flex:1 1 220px}
 select{flex:1 1 140px;max-width:100%}
-.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent)}
+.chips::-webkit-scrollbar{display:none}
+.chip:hover{border-color:var(--muted)}
 .chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 11px;font-size:.82rem;white-space:nowrap}
 .chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .label{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
@@ -70,17 +78,21 @@ select{flex:1 1 140px;max-width:100%}
 .card .meta{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
 .card .where{font-size:.8rem;color:var(--muted);min-width:0}
 .card .where b{display:block;color:var(--ink);font-weight:600;font-size:.9rem}
-.card .txt{font-family:var(--f-display);font-weight:700;font-size:clamp(1.25rem,4.6vw,1.6rem);line-height:1.2;letter-spacing:-.01em;flex:1;text-wrap:balance;overflow-y:auto}
+.card .txt{font-family:var(--f-display);font-weight:700;font-size:clamp(1.35rem,5vw,1.75rem);line-height:1.18;letter-spacing:-.015em;flex:1;text-wrap:balance;overflow-y:auto;display:flex;align-items:center}
 .card .foot{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:space-between}
 .stamp{position:absolute;top:22px;font-family:var(--f-display);font-weight:800;font-size:1.4rem;padding:4px 12px;border:3px solid;border-radius:8px;opacity:0;transform:rotate(-8deg);pointer-events:none}
 .stamp.pour{right:22px;color:var(--pour);border-color:var(--pour)}
 .stamp.contre{left:22px;color:var(--contre);border-color:var(--contre);transform:rotate(8deg)}
-.impact{display:inline-flex;gap:3px;align-items:center;font-family:var(--f-mono);font-size:.72rem;color:var(--muted);white-space:nowrap}
+.impact{display:inline-flex;gap:3px;align-items:center;font-size:.72rem;color:var(--muted);white-space:nowrap}
+.impact em{font-style:normal;margin-right:3px}
 .impact i{width:7px;height:7px;border-radius:50%;background:var(--line);display:inline-block}
 .impact i.on{background:var(--accent)}
 .tag{font-size:.72rem;background:var(--surface-2);color:var(--muted);border-radius:6px;padding:2px 7px}
 .actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-.btn{border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:12px 8px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:13px 8px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;transition:transform .12s ease-out, filter .12s}
+.btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.btn:hover{filter:brightness(.97)}
+.btn:active{transform:scale(.97)}
 .btn.pour{background:var(--pour-soft);color:var(--pour);border-color:transparent}
 .btn.contre{background:var(--contre-soft);color:var(--contre);border-color:transparent}
 .btn.neutre{background:var(--neutre-soft);color:var(--muted);border-color:transparent}
@@ -118,13 +130,9 @@ textarea{width:100%;box-sizing:border-box;min-height:64px;background:var(--bg);b
 .more{padding:12px;text-align:center;border-top:1px solid var(--line)}
 
 /* recap */
-.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px}
-.stat .n{font-family:var(--f-display);font-weight:800;font-size:1.6rem;font-variant-numeric:tabular-nums;line-height:1.1}
-.stat .l{font-size:.78rem;color:var(--muted)}
-.stat.pour .n{color:var(--pour)} .stat.contre .n{color:var(--contre)}
 .headline{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:10px}
-.headline .big{font-family:var(--f-display);font-weight:800;font-size:2.4rem;line-height:1;font-variant-numeric:tabular-nums}
+.headline .big{font-family:var(--f-display);font-weight:800;font-size:2.6rem;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.headline .big small{font-size:1rem;font-weight:600;color:var(--muted);letter-spacing:0;margin-left:6px}
 .headline p{margin:0;color:var(--muted);font-size:.88rem;max-width:62ch}
 .stack{display:flex;height:10px;border-radius:5px;overflow:hidden;background:var(--surface-2)}
 .stack span{display:block;height:100%}
@@ -143,21 +151,22 @@ textarea{width:100%;box-sizing:border-box;min-height:64px;background:var(--bg);b
 .sc{font-family:var(--f-mono);font-size:.78rem;text-align:right;font-variant-numeric:tabular-nums}
 .sc.pos{color:var(--pour)} .sc.neg{color:var(--contre)} .sc.nil{color:var(--muted)}
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.78rem;color:var(--muted)}
+.legend b{color:var(--ink);font-variant-numeric:tabular-nums}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
 .toggle{display:flex;align-items:center;gap:8px;font-size:.85rem}
-.note{font-size:.78rem;color:var(--muted);max-width:62ch}
+.note{font-size:.78rem;color:var(--muted);max-width:62ch;margin:0}
+.mynote{font-size:.85rem;color:var(--ink);background:var(--accent-soft);border-radius:8px;padding:6px 9px;white-space:pre-wrap}
 .toast{position:fixed;left:50%;bottom:calc(76px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:10px;font-size:.85rem;opacity:0;transition:opacity .2s;pointer-events:none;z-index:20}
 .toast.show{opacity:1}
 .sync{font-size:.72rem;color:var(--muted)}
 @media (prefers-reduced-motion: reduce){.card,.toast{transition:none}}
-@media (max-width:420px){.summary{grid-template-columns:repeat(3,minmax(0,1fr))}.stat .n{font-size:1.3rem}}
 </style>
 <style>*{box-sizing:border-box}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}body{margin:0}[hidden]{display:none!important}</style>
 </head>
 <body>
 
 <header class="top"><div class="wrap">
-  <h1>Boussole Avenir en commun</h1>
+  <h1>Boussole <span>Avenir en commun</span></h1>
   <span class="progress" id="progress">Chargement…</span>
 </div></header>
 
@@ -167,7 +176,7 @@ textarea{width:100%;box-sizing:border-box;min-height:64px;background:var(--bg);b
   <div class="filters">
     <select id="s-ch" aria-label="Chapitre"></select>
     <select id="s-sort" aria-label="Ordre">
-      <option value="impact">Impact potentiel d'abord</option>
+      <option value="impact">Impact d'abord</option>
       <option value="prog">Ordre du programme</option>
       <option value="rand">Au hasard</option>
     </select>
@@ -175,14 +184,14 @@ textarea{width:100%;box-sizing:border-box;min-height:64px;background:var(--bg);b
   <div class="chips" id="s-prof" role="group" aria-label="Profil"></div>
   <div class="stage" id="stage"></div>
   <div class="actions" id="actions">
-    <button class="btn contre" data-v="-1" id="b-contre">✕ Contre</button>
-    <button class="btn neutre" data-v="0" id="b-neutre">~ Neutre</button>
-    <button class="btn pour" data-v="1" id="b-pour">✓ Pour</button>
+    <button class="btn contre" data-v="-1" id="b-contre"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>Contre</button>
+    <button class="btn neutre" data-v="0" id="b-neutre"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg>Neutre</button>
+    <button class="btn pour" data-v="1" id="b-pour"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Pour</button>
   </div>
   <div class="subactions">
-    <button class="link" id="b-undo" disabled>↶ Annuler</button>
+    <button class="link" id="b-undo" disabled>Annuler</button>
     <span class="count" id="s-left"></span>
-    <button class="link" id="b-skip">Passer →</button>
+    <button class="link" id="b-skip">Passer</button>
   </div>
 </section>
 
@@ -213,18 +222,13 @@ textarea{width:100%;box-sizing:border-box;min-height:64px;background:var(--bg);b
 
 <section class="view" id="v-bilan" aria-label="Bilan" hidden>
   <div class="headline">
-    <span class="label">Alignement global</span>
     <div class="big" id="r-score">–</div>
     <div class="stack" id="r-stack"></div>
+    <div class="legend"><span><i style="background:var(--pour)"></i><b id="r-pour">0</b> pour</span><span><i style="background:var(--neutre)"></i><b id="r-neutre">0</b> neutre</span><span><i style="background:var(--contre)"></i><b id="r-contre">0</b> contre</span></div>
     <p id="r-desc"></p>
     <label class="toggle"><input type="checkbox" id="r-weight"> Pondérer par l'impact potentiel</label>
   </div>
-  <div class="summary">
-    <div class="stat pour"><div class="n" id="r-pour">0</div><div class="l">Pour</div></div>
-    <div class="stat contre"><div class="n" id="r-contre">0</div><div class="l">Contre</div></div>
-    <div class="stat"><div class="n" id="r-neutre">0</div><div class="l">Neutre</div></div>
-  </div>
-  <div class="legend"><span><i style="background:var(--contre)"></i>Contre</span><span><i style="background:var(--pour)"></i>Pour</span><span>Score = (pour − contre) ÷ mesures triées</span></div>
+  <p class="note">Par thème : score de −100 (tout contre) à +100 (tout pour). Touche un thème pour voir ses mesures.</p>
   <div id="r-chapters" class="view"></div>
   <p class="note">Mesures reformulées en une ligne à partir de lavenirencommun.org (site non officiel, 795 mesures de la version synthétique). Chaque mesure renvoie vers son texte original. Le score d'impact (1 à 3) estime l'ampleur d'une mesure (population touchée, poids budgétaire ou institutionnel), pas sa pertinence. <span class="sync" id="sync"></span></p>
 </section>
@@ -291,7 +295,7 @@ async function initDb(){
 }
 
 /* ---------- helpers ---------- */
-function impactDots(i){return `<span class="impact" title="Impact potentiel ${i}/3">${[1,2,3].map(k=>`<i class="${k<=i?"on":""}"></i>`).join("")}</span>`}
+function impactDots(i){return `<span class="impact" title="Impact potentiel ${i}/3" aria-label="Impact potentiel ${i} sur 3"><em>Impact</em>${[1,2,3].map(k=>`<i class="${k<=i?"on":""}"></i>`).join("")}</span>`}
 function tags(m){return (m.p||[]).map(p=>`<span class="tag">${PROFILES[p]||p}</span>`).join("")}
 function toast(t){const el=$("#toast");el.textContent=t;el.classList.add("show");clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove("show"),1400)}
 function fillChapterSelect(sel){sel.innerHTML=`<option value="">Tous les chapitres</option>`+CHAPTERS.map((c,i)=>`<option value="${i+1}">${i+1}. ${c}</option>`).join("")}
@@ -320,13 +324,13 @@ function cardHTML(m,behind){
     <span class="stamp pour">POUR</span><span class="stamp contre">CONTRE</span>
     <div class="meta"><div class="where"><b>${esc(m.theme)}</b>Chapitre ${m.ch} · ${esc(CHAPTERS[m.ch-1])}</div>${impactDots(m.i)}</div>
     <div class="txt">${esc(m.t)}</div>
-    <div class="foot"><div class="left" style="display:flex;gap:6px;flex-wrap:wrap">${tags(m)}</div><a class="link" href="${esc(m.url)}" target="_blank" rel="noopener">Texte original ↗</a></div>
+    <div class="foot"><div class="left" style="display:flex;gap:6px;flex-wrap:wrap">${tags(m)}</div><a class="link" href="${esc(m.url)}" target="_blank" rel="noopener">Texte original<span aria-hidden="true"> ↗</span></a></div>
   </article>`;
 }
 function renderStage(){
   const st=$("#stage");
   const left=T.queue.length;
-  $("#s-left").textContent=left?`${left} restante${left>1?"s":""}`:"";
+  $("#s-left").textContent=left?`${left} restante${left>1?"s":""} · glisse ← ou →`:"";
   $("#actions").hidden=!left;
   $("#b-skip").hidden=!left;
   $("#b-undo").disabled=!history.length;
@@ -414,10 +418,10 @@ function rowHTML(m){
   return `<div class="row" data-id="${m.id}" data-v="${v===undefined?"":v}"><div class="bar"></div><div class="body">
     <div class="t">${esc(m.t)}</div>
     <div class="sub"><div class="left">${impactDots(m.i)}${tags(m)}<a class="link" style="font-size:.78rem" href="${esc(m.url)}" target="_blank" rel="noopener">Original ↗</a></div>
-      <div class="left"><span class="vote">${vb(-1,"Contre")}${vb(0,"~")}${vb(1,"Pour")}</span>
+      <div class="left"><span class="vote">${vb(-1,"Contre")}${vb(0,"Neutre")}${vb(1,"Pour")}</span>
       <button class="ico" data-act="fav" aria-pressed="${!!S.fav[m.id]}" aria-label="Favori">${S.fav[m.id]?STAR:STAR_O}</button>
       <button class="ico${S.notes[m.id]?" has-note":""}" data-act="note" aria-label="Note perso">${NOTE}</button></div></div>
-    ${openNote===m.id?`<textarea id="note-${m.id}" data-act="notetext" placeholder="Ta note sur cette mesure…">${esc(S.notes[m.id]||"")}</textarea>`:(S.notes[m.id]?`<div class="note">📝 ${esc(S.notes[m.id])}</div>`:"")}
+    ${openNote===m.id?`<textarea id="note-${m.id}" data-act="notetext" placeholder="Ta note sur cette mesure…">${esc(S.notes[m.id]||"")}</textarea>`:(S.notes[m.id]?`<div class="note mynote">${esc(S.notes[m.id])}</div>`:"")}
   </div></div>`;
 }
 function renderExplorer(){
@@ -479,13 +483,13 @@ function renderBilan(){
   $("#r-pour").textContent=tot.p;$("#r-contre").textContent=tot.c;$("#r-neutre").textContent=tot.n;
   const voted=tot.p+tot.c+tot.n;
   if(!voted){
-    $("#r-score").textContent="–";$("#r-stack").innerHTML="";
+    $("#r-score").textContent="Pas encore de bilan";$("#r-score").style.fontSize="1.4rem";$("#r-stack").innerHTML="";
     $("#r-desc").textContent="Trie quelques mesures dans l'onglet Trier pour voir ton alignement apparaître, thème par thème.";
   }else{
     const pct=Math.round(P/den*100);
-    $("#r-score").textContent=pct+" % pour";
+    $("#r-score").style.fontSize="";$("#r-score").innerHTML=pct+" %<small> d'accord</small>";
     $("#r-stack").innerHTML=`<span style="width:${P/den*100}%;background:var(--pour)"></span><span style="width:${N/den*100}%;background:var(--neutre)"></span><span style="width:${C/den*100}%;background:var(--contre)"></span>`;
-    $("#r-desc").textContent=`Sur ${voted} mesure${voted>1?"s":""} triée${voted>1?"s":""} (${Math.round(voted/M.length*100)} % du programme), ${tot.p} pour, ${tot.c} contre, ${tot.n} neutre${w?" — pondéré par l'impact potentiel.":"."}`;
+    $("#r-desc").textContent=`Sur ${voted} mesure${voted>1?"s":""} triée${voted>1?"s":""} (${Math.round(voted/M.length*100)} % du programme)${w?", pondéré par l'impact potentiel.":"."}`;
   }
   let html="";
   for(let ch=1;ch<=8;ch++){
