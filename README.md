@@ -11,6 +11,9 @@ Mini app pour parcourir les 795 mesures de la version synthétique de *L'Avenir 
 
 Tes votes et notes restent dans ton navigateur (localStorage) : rien n'est envoyé nulle part.
 
+## Design
+Interface construite avec le système **Repères** (palette Océan, police Source Sans 3 sous licence SIL Open Font License, fichiers dans `fonts/`).
+
 ## Sources et limites
 - Chaque mesure est **reformulée en une ligne** ; le lien « Original » renvoie au texte complet sur [lavenirencommun.org](https://www.lavenirencommun.org/) (site non officiel). Programme officiel : [melenchon2027.fr](https://melenchon2027.fr/).
 - Le **score d'impact (1–3)** est une estimation de l'ampleur d'une mesure (population touchée, poids budgétaire ou institutionnel), pas un jugement sur sa pertinence.
